@@ -1,4 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:snaky/screens/piece.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -12,13 +16,15 @@ class _HomeScreenState extends State<HomeScreen> {
   int? lowerBondY;
   double? screenWidth;
   double? screenHeight;
-  int step = 20;
+  int step = 30;
+  List<Offset> positions = [];
+  int? length = 5;
 
-  int getNearestTens(int number){
+  int getNearestTens(int number) {
     int outPutNumber;
-    outPutNumber = (number ~/step) *step;
-    if(outPutNumber == 0){
-      outPutNumber+= step;
+    outPutNumber = (number ~/ step) * step;
+    if (outPutNumber == 0) {
+      outPutNumber += step;
     }
     return outPutNumber;
   }
@@ -26,14 +32,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     screenHeight = MediaQuery.of(context).size.height;
-    screenWidth= MediaQuery.of(context).size.width;
+    screenWidth = MediaQuery.of(context).size.width;
     lowerBondY = step;
     lowerBondX = step;
 
 
-    upperBondY = getNearestTens(screenHeight!.toInt()-step);
-    upperBondX = getNearestTens(screenWidth!.toInt()-step);
-
+    upperBondY = getNearestTens(screenHeight!.toInt() - step);
+    upperBondX = getNearestTens(screenWidth!.toInt() - step);
 
     return Scaffold(
       body: Container(
@@ -41,9 +46,47 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Stack(
           children: [
 
+            Stack(
+              children: getPieces(),
+            )
           ],
         ),
       ),
     );
+  }
+
+  Offset getRandomPosition() {
+    Offset position;
+    int positionX = Random().nextInt(upperBondX!) + lowerBondX!;
+    int positionY = Random().nextInt(upperBondY!) + lowerBondY!;
+
+    position = Offset(getNearestTens(positionX).toDouble(),
+        getNearestTens(positionY).toDouble());
+
+    return position;
+  }
+
+  void draw() {
+    if (positions.length == 0) {
+      positions.add(getRandomPosition());
+    }
+    while(length! > positions.length ){
+      positions.add(positions[positions.length -1]);
+    }
+  }
+
+  List<Piece> getPieces() {
+    final pieces = <Piece>[];
+    draw();
+
+    pieces.add(
+      Piece(
+        color: Colors.red,
+        positionX: positions[0].dx.toInt(),
+        positionY: positions[0].dy.toInt(),
+        size: step,
+      ),
+    );
+    return pieces;
   }
 }

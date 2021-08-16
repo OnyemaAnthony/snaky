@@ -21,9 +21,22 @@ class _PieceState extends State<Piece> {
   Widget build(BuildContext context) {
     return Positioned(
       top: widget.positionY!.toDouble(),
-      left: widget.positionX!.toDouble() ,
+      left: widget.positionX!.toDouble(),
       child: Opacity(
-        child: ,
+        opacity: 1,
+        child: Container(
+          width: widget.size!.toDouble(),
+          height: widget.size!.toDouble(),
+          decoration: BoxDecoration(
+            color: widget.color,
+            border: Border.all(width: 2, color: Colors.white),
+            borderRadius: BorderRadius.all(
+              Radius.circular(
+                10,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
