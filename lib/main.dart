@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:snaky/screens/utilities/home_screen.dart';
+import 'package:snaky/screens/home_screen.dart';
+
 
 void main() {
   runApp(MyApp());
