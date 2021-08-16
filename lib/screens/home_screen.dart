@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:snaky/screens/piece.dart';
+import 'package:snaky/utilities/direction.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -19,6 +21,9 @@ class _HomeScreenState extends State<HomeScreen> {
   int step = 30;
   List<Offset> positions = [];
   int? length = 5;
+  Direction direction = Direction.right;
+  Timer? timer;
+
 
   int getNearestTens(int number) {
     int outPutNumber;
@@ -28,7 +33,28 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return outPutNumber;
   }
+  
+  void changeSpeed(){
 
+    if(timer!= null && timer!.isActive){
+      timer!.cancel();
+    }
+    timer = Timer.periodic(Duration(microseconds: 200), (timer) {
+      setState(() {
+
+      });
+    });
+  }
+  
+  void restart(){
+    changeSpeed();
+  }
+@override
+  void initState() {
+    super.initState();
+    restart();
+  }
+  
   @override
   Widget build(BuildContext context) {
     screenHeight = MediaQuery.of(context).size.height;
@@ -65,6 +91,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return position;
   }
+  Offset getNextPosition(Offset position){
+    late Offset nextPosition;
+     if(direction == Direction.right){
+       nextPosition = Offset(position.dx+step, position.dy);
+     }else if(direction == Direction.left){
+       nextPosition = Offset(position.dx-step, position.dy);
+     }else if(direction == Direction.up){
+       nextPosition = Offset(position.dx, position.dy-step);
+     }else if(direction == Direction.down){
+       nextPosition = Offset(position.dx, position.dy+step);
+     }
+   return  nextPosition;
+  }
 
   void draw() {
     if (positions.length == 0) {
@@ -73,20 +112,29 @@ class _HomeScreenState extends State<HomeScreen> {
     while(length! > positions.length ){
       positions.add(positions[positions.length -1]);
     }
+
+    for(int i = positions.length-1; i> 0; i--){
+      positions[i] =positions[i-1];
+
+
+    }
+    positions[0]= getNextPosition(positions[0]);
   }
 
   List<Piece> getPieces() {
     final pieces = <Piece>[];
     draw();
+   for(int i =0; i<length!; i++){
+     pieces.add(
+       Piece(
+         color: Colors.red,
+         positionX: positions[0].dx.toInt(),
+         positionY: positions[0].dy.toInt(),
+         size: step,
+       ),
+     );
+   }
 
-    pieces.add(
-      Piece(
-        color: Colors.red,
-        positionX: positions[0].dx.toInt(),
-        positionY: positions[0].dy.toInt(),
-        size: step,
-      ),
-    );
     return pieces;
   }
 }
