@@ -39,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if(timer!= null && timer!.isActive){
       timer!.cancel();
     }
-    timer = Timer.periodic(Duration(microseconds: 200), (timer) {
+    timer = Timer.periodic(Duration(milliseconds: 200), (timer) {
       setState(() {
 
       });
@@ -128,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
      pieces.add(
        Piece(
          color: Colors.red,
-         positionX: positions[0].dx.toInt(),
+         positionX: positions[i].dx.toInt(),
          positionY: positions[0].dy.toInt(),
          size: step,
        ),
