@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class Piece extends StatefulWidget {
   final int? positionX, positionY, size;
   final Color? color;
+  final bool? isAnimated;
 
   const Piece({
     Key? key,
@@ -10,6 +11,7 @@ class Piece extends StatefulWidget {
     this.positionY,
     this.size,
     this.color,
+    this.isAnimated = false
   }) : super(key: key);
 
   @override
@@ -44,7 +46,7 @@ class _PieceState extends State<Piece> with SingleTickerProviderStateMixin {
       top: widget.positionY!.toDouble(),
       left: widget.positionX!.toDouble(),
       child: Opacity(
-        opacity: 1,
+        opacity: widget.isAnimated!? controller!.value:1,
         child: Container(
           width: widget.size!.toDouble(),
           height: widget.size!.toDouble(),
