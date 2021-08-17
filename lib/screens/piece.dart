@@ -16,7 +16,28 @@ class Piece extends StatefulWidget {
   _PieceState createState() => _PieceState();
 }
 
-class _PieceState extends State<Piece> {
+class _PieceState extends State<Piece> with SingleTickerProviderStateMixin {
+  AnimationController? controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = AnimationController(
+      vsync: this,
+      lowerBound: 0.25,
+      upperBound: 1.0,
+      duration: Duration(milliseconds: 1000),
+    );
+    controller!.addStatusListener((status) {
+         if(status == AnimationStatus.completed){
+           controller!.reset();
+         }else if(status == AnimationStatus.dismissed){
+           controller!.forward();
+         }
+    });
+  controller!.forward();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Positioned(

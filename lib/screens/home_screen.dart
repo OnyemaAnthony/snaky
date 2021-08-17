@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:snaky/screens/piece.dart';
 import 'package:snaky/utilities/direction.dart';
+import 'package:snaky/widgets/control_panel.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -23,7 +24,10 @@ class _HomeScreenState extends State<HomeScreen> {
   int? length = 5;
   Direction direction = Direction.right;
   Timer? timer;
-
+  Offset? foodPosition;
+  late Piece food;
+  int score = 0;
+  double speed = 1.0;
 
   int getNearestTens(int number) {
     int outPutNumber;
@@ -33,35 +37,40 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return outPutNumber;
   }
-  
-  void changeSpeed(){
 
-    if(timer!= null && timer!.isActive){
+  void changeSpeed() {
+    if (timer != null && timer!.isActive) {
       timer!.cancel();
     }
     timer = Timer.periodic(Duration(milliseconds: 200), (timer) {
-      setState(() {
-
-      });
+      setState(() {});
     });
   }
-  
-  void restart(){
+
+  void restart() {
     changeSpeed();
   }
-@override
+
+  Widget getControls() {
+    return ControlPanel(
+      onTap: (Direction newDirection) {
+        direction = newDirection;
+      },
+    );
+  }
+
+  @override
   void initState() {
     super.initState();
     restart();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     screenHeight = MediaQuery.of(context).size.height;
     screenWidth = MediaQuery.of(context).size.width;
     lowerBondY = step;
     lowerBondX = step;
-
 
     upperBondY = getNearestTens(screenHeight!.toInt() - step);
     upperBondX = getNearestTens(screenWidth!.toInt() - step);
@@ -71,10 +80,11 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Colors.amber,
         child: Stack(
           children: [
-
             Stack(
               children: getPieces(),
-            )
+            ),
+            getControls(),
+            food,
           ],
         ),
       ),
@@ -91,49 +101,71 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return position;
   }
-  Offset getNextPosition(Offset position){
+
+  Offset getNextPosition(Offset position) {
     late Offset nextPosition;
-     if(direction == Direction.right){
-       nextPosition = Offset(position.dx+step, position.dy);
-     }else if(direction == Direction.left){
-       nextPosition = Offset(position.dx-step, position.dy);
-     }else if(direction == Direction.up){
-       nextPosition = Offset(position.dx, position.dy-step);
-     }else if(direction == Direction.down){
-       nextPosition = Offset(position.dx, position.dy+step);
-     }
-   return  nextPosition;
+    if (direction == Direction.right) {
+      nextPosition = Offset(position.dx + step, position.dy);
+    } else if (direction == Direction.left) {
+      nextPosition = Offset(position.dx - step, position.dy);
+    } else if (direction == Direction.up) {
+      nextPosition = Offset(position.dx, position.dy - step);
+    } else if (direction == Direction.down) {
+      nextPosition = Offset(position.dx, position.dy + step);
+    }
+    return nextPosition;
   }
 
-  void draw() {
+  void drawSnake() {
     if (positions.length == 0) {
       positions.add(getRandomPosition());
     }
-    while(length! > positions.length ){
-      positions.add(positions[positions.length -1]);
+    while (length! > positions.length) {
+      positions.add(positions[positions.length - 1]);
     }
 
-    for(int i = positions.length-1; i> 0; i--){
-      positions[i] =positions[i-1];
-
-
+    for (int i = positions.length - 1; i > 0; i--) {
+      positions[i] = positions[i - 1];
     }
-    positions[0]= getNextPosition(positions[0]);
+    positions[0] = getNextPosition(positions[0]);
+  }
+
+  void drawFood() {
+    if (foodPosition == null) {
+      foodPosition = getRandomPosition();
+    }
+    if(foodPosition == positions[0]){
+      length = (length!+ 1);
+      score = score +5;
+      speed = speed+0.25;
+      foodPosition = getRandomPosition();
+    }
+      food = Piece(
+        positionX: foodPosition!.dx.toInt(),
+        positionY: foodPosition!.dy.toInt(),
+        size: step,
+        color: Colors.red,
+      );
+
   }
 
   List<Piece> getPieces() {
     final pieces = <Piece>[];
-    draw();
-   for(int i =0; i<length!; i++){
-     pieces.add(
-       Piece(
-         color: Colors.red,
-         positionX: positions[i].dx.toInt(),
-         positionY: positions[0].dy.toInt(),
-         size: step,
-       ),
-     );
-   }
+    drawSnake();
+    drawFood();
+    for (int i = 0; i < length!; i++) {
+      if(i >= positions.length){
+        continue;
+      }
+      pieces.add(
+        Piece(
+          color: i.isEven ? Colors.red: Colors.green,
+          positionX: positions[i].dx.toInt(),
+          positionY: positions[0].dy.toInt(),
+          size: step,
+        ),
+      );
+    }
 
     return pieces;
   }
